@@ -4,7 +4,7 @@
 
 三个内置 GPU 效果的 `sigma` / `blurSigma` 自动限制到 `0..60`，越界不抛异常；负无穷取 0，正无穷取 60，`NaN` 取 0。
 
-本版本仅允许包名 `com.coocaa.study.jxw`、`com.skyworth.angel.voice`、`com.coocaa.bestiemanager`、`com.tianci.movieplatform` 使用；其他宿主创建背景或区域模糊 View 时抛出 `SecurityException`。包名校验不验证签名，不能防止同包名仿冒或修改 AAR。
+本版本仅允许包名 `com.coocaa.study.jxw`、`com.skyworth.angel.voice`、`com.coocaa.bestiemanager`、`com.tianci.movieplatform` 使用模糊；其他宿主视为不支持模糊，工厂返回普通 View，`supportBlur()` 返回 false，直接创建区域 View 时只显示普通背景，背景 View 保留图片显示但不驱动 CPU 或 GPU 模糊。校验失败不抛异常。包名校验不验证签名，不能防止同包名仿冒或修改 AAR。
 
 `GuimiRegionBlurView` 和 `IWidgetBlurBgView.createBlurView` 的新重载支持 `strokeEnabled` 与 `strokeGradient`，默认保留现有描边；`strokeEnabled = false` 关闭描边，`strokeGradient = null` 使用默认渐变。工厂调用示例：
 
