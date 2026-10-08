@@ -44,7 +44,7 @@ GitGuimiBlurLib/
 
 ## 设置版本和发布
 
-当前本地默认 `releaseVersion=1.0.3`，初始 AAR 来自现有已构建的 Release 文件，尚未在本 GitHub 公有仓库创建 Tag 或远程发布。
+当前本地默认 `releaseVersion=1.0.6`，初始 AAR 来自现有已构建的 Release 文件，尚未在本 GitHub 公有仓库创建 Tag 或远程发布。
 
 1. 修改 `gradle.properties` 的 `releaseVersion`，并同步 README 的版本示例。
 2. 若私有源码工程的外部依赖发生变化，同步两个模块 `build.gradle` 的 `pomDependencies`。原始 AAR 本身没有 Maven 传递依赖信息，不能只替换 AAR 而忽略这一项。
@@ -54,10 +54,10 @@ GitGuimiBlurLib/
 
 ```powershell
 git add .
-git commit -m "Publish GuimiBlur binary 1.0.3"
+git commit -m "Publish GuimiBlur binary 1.0.6"
 git push origin main
-git tag 1.0.3
-git push origin 1.0.3
+git tag 1.0.6
+git push origin 1.0.6
 ```
 
 示例沿用当前本地 `main` 分支；远程分支不同需相应调整。不要移动已发布的 Tag，每次替换 AAR 建议发布新版本。
@@ -72,13 +72,13 @@ bash ./gradlew --no-daemon verifyPublications publishToMavenLocal
 
 版本优先使用 JitPack 的 `VERSION` 环境变量，因此发布版本与请求的 Tag/提交一致。模块 group 使用 JitPack 的 `GROUP` 和 `ARTIFACT` 拼接，未提供时使用 `com.github.zhannis.GuimiBlurLib`。没有编译、访问私有源码或远程 Maven 上传步骤，JitPack 会收集本地 Maven 仓库里的 AAR/POM。
 
-如果日志出现 `JAVA_HOME is set to an invalid directory: /usr/lib/jvm/jdk-11`，说明 Gradle 尚未启动，需确认构建的提交包含选择 `openjdk17` 的 `jitpack.yml`。只推送分支不会改变旧 Tag 指向的提交；可创建新版本 Tag 后构建，并将接入依赖的版本改为该 Tag 的完整名称（`1.0.1` 与 `1.0.3` 是不同版本）。
+如果日志出现 `JAVA_HOME is set to an invalid directory: /usr/lib/jvm/jdk-11`，说明 Gradle 尚未启动，需确认构建的提交包含选择 `openjdk17` 的 `jitpack.yml`。只推送分支不会改变旧 Tag 指向的提交；可创建新版本 Tag 后构建，并将接入依赖的版本改为该 Tag 的完整名称（`1.0.6` 与 `v1.0.6` 是不同版本）。
 
 ## 本地验证
 
 ```powershell
 .\gradlew.bat verifyPublications --offline
-.\gradlew.bat verifyPublications -PpublishVersion=v1.0.3 --offline
+.\gradlew.bat verifyPublications -PpublishVersion=v1.0.6 --offline
 ```
 
 产物在 `build/verification-repository/com/github/zhannis/GuimiBlurLib/<module>/<version>/`，不进入 Git。检查 POM 的 `<packaging>aar</packaging>`、依赖版本和发布后 AAR 的 SHA-256。
@@ -88,8 +88,8 @@ bash ./gradlew --no-daemon verifyPublications publishToMavenLocal
 ## App 坐标
 
 ```groovy
-implementation 'com.github.zhannis.GuimiBlurLib:guimi-blur-lib:1.0.3'
-implementation 'com.github.zhannis.GuimiBlurLib:guimi-blur-ext-lib:1.0.3'
+implementation 'com.github.zhannis.GuimiBlurLib:guimi-blur-lib:1.0.6'
+implementation 'com.github.zhannis.GuimiBlurLib:guimi-blur-ext-lib:1.0.6'
 ```
 
 CPU-only App 仅保留第一项；GPU App 可以只声明第二项，它会传递引入基础库。不要引用旧私有仓库坐标，也不要用聚合坐标给 CPU-only App 引入整个仓库。

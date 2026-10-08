@@ -4,12 +4,12 @@
     {
       "id": "guimi-blur-lib",
       "file": "aars/GuimiBlurLib-release.aar",
-      "sha256": "8d0693b8a5d62a816292a117a7fe697425b444374b4e7591b6763d4881601fe5"
+      "sha256": "1fc46dc7d80e4f419a6dc1fc62c881f783cd8c665d5d2ca0a193f829a9a413bd"
     },
     {
       "id": "guimi-blur-ext-lib",
       "file": "aars/GuimiBlurExtLib-release.aar",
-      "sha256": "9c498fa1dd9c52d7fb08eb880ce956e019b73d60665890b7f45e4aa837c05bdf"
+      "sha256": "74fa42c2de50dce4ce6a4d2e599424bcb80c5e8eed1b8d601859d733b22a0b9e"
     }
   ]
 }
