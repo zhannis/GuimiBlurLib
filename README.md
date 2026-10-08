@@ -11,9 +11,11 @@ CPU 模糊 `radius` 自动限制到 `0..24`，越界不抛异常；CPU 半径与
 `GuimiRegionBlurView` 和 `IWidgetBlurBgView.createBlurView` 的新重载支持 `strokeEnabled` 与 `strokeGradient`，默认保留现有描边；`strokeEnabled = false` 关闭描边，`strokeGradient = null` 使用默认渐变。工厂调用示例：
 
 ```kotlin
-blurFactory.createBlurView(context, roundCorner = 20f, strokeEnabled = false)
-blurFactory.createBlurView(context, roundCorner = 20f, strokeEnabled = true, strokeGradient = gradient)
+WidgetBlurHelper.createBlurView(context, roundCorner = 20f, strokeEnabled = false)
+WidgetBlurHelper.createBlurView(context, roundCorner = 20f, strokeEnabled = true, strokeGradient = gradient)
 ```
+
+`com.ccos.guimiblur.WidgetBlurHelper` 是公共入口，Kotlin 使用 `WidgetBlurHelper.createBlurView(...)`，Java 使用 `WidgetBlurHelper.INSTANCE.createBlurView(...)`。先创建 `GuimiHomeBgView` 注册模糊背景源；背景源尚未注册或宿主不在白名单时返回普通 View。
 
 GuimiBlur 的公开二进制发布仓库。只包含混淆后的 Release AAR 和发布配置，不包含库的实现源码、源码包或混淆映射。
 
