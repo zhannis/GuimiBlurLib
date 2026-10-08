@@ -1,0 +1,15 @@
+{
+  "formatVersion": 1,
+  "artifacts": [
+    {
+      "id": "guimi-blur-lib",
+      "file": "aars/GuimiBlurLib-release.aar",
+      "sha256": "d549005bacd7aa6797b6b5dbb33228597a2ff33458b7201dc19ea3ed9c76192a"
+    },
+    {
+      "id": "guimi-blur-ext-lib",
+      "file": "aars/GuimiBlurExtLib-release.aar",
+      "sha256": "eced9cc271727772f285282574ac4393fb9824731d81704de471f311be8fd1ed"
+    }
+  ]
+}

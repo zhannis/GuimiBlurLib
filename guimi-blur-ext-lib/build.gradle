@@ -1,0 +1,8 @@
+ext.releaseAar = rootProject.file('aars/GuimiBlurExtLib-release.aar')
+ext.releaseDescription = 'GuimiBlur GPU blur, liquid glass, ice glass, and custom AGSL effects (API 34+).'
+ext.pomDependencies = [
+    [groupId: project.group.toString(), artifactId: 'guimi-blur-lib',
+        version: project.version.toString(), scope: 'compile'],
+    [groupId: 'org.jetbrains.kotlin', artifactId: 'kotlin-stdlib', version: '1.7.20', scope: 'compile'],
+]
+apply from: rootProject.file('gradle/binary-publish.gradle')

@@ -1,0 +1,45 @@
+apply plugin: 'base'
+apply plugin: 'maven-publish'
+
+publishing {
+    publications {
+        release(MavenPublication) {
+            groupId = project.group.toString()
+            artifactId = project.name
+            version = project.version.toString()
+            artifact(project.releaseAar) {
+                extension = 'aar'
+            }
+            pom {
+                name = project.name
+                description = project.releaseDescription
+                url = rootProject.releaseRepositoryUrl
+                scm {
+                    url = rootProject.releaseRepositoryUrl
+                    connection = "scm:git:${rootProject.releaseRepositoryUrl}.git"
+                }
+                // Raw AARs do not carry Maven dependency metadata.
+                withXml {
+                    def dependencies = asNode().appendNode('dependencies')
+                    project.pomDependencies.each { item ->
+                        def dependency = dependencies.appendNode('dependency')
+                        item.each { key, value -> dependency.appendNode(key, value) }
+                    }
+                }
+            }
+        }
+    }
+    repositories {
+        maven {
+            name = 'Verification'
+            url = rootProject.layout.buildDirectory.dir('verification-repository')
+        }
+    }
+}
+
+tasks.withType(org.gradle.api.publish.maven.tasks.PublishToMavenRepository).configureEach {
+    dependsOn rootProject.tasks.named('verifyReleaseAars')
+}
+tasks.withType(org.gradle.api.publish.maven.tasks.PublishToMavenLocal).configureEach {
+    dependsOn rootProject.tasks.named('verifyReleaseAars')
+}

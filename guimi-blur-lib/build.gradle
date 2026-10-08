@@ -1,0 +1,9 @@
+ext.releaseAar = rootProject.file('aars/GuimiBlurLib-release.aar')
+ext.releaseDescription = 'GuimiBlur CPU background blur and public View/extension contracts (API 19+).'
+ext.pomDependencies = [
+    [groupId: 'androidx.appcompat', artifactId: 'appcompat', version: '1.4.1', scope: 'compile'],
+    [groupId: 'androidx.core', artifactId: 'core-ktx', version: '1.8.0', scope: 'compile'],
+    [groupId: 'org.jetbrains.kotlin', artifactId: 'kotlin-stdlib', version: '1.7.20', scope: 'compile'],
+    [groupId: 'androidx.palette', artifactId: 'palette-ktx', version: '1.0.0', scope: 'runtime'],
+]
+apply from: rootProject.file('gradle/binary-publish.gradle')

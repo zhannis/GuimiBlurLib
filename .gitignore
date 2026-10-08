@@ -1,0 +1,26 @@
+.gradle/
+**/build/
+.idea/
+*.iml
+local.properties
+.DS_Store
+Thumbs.db
+
+# This is a binary-only public repository.
+**/src/
+*.java
+*.kt
+*-sources.jar
+mapping.txt
+seeds.txt
+usage.txt
+configuration.txt
+*.jks
+*.keystore
+*.pem
+*.key
+.env
+.env.*
+*.aar
+!aars/GuimiBlurLib-release.aar
+!aars/GuimiBlurExtLib-release.aar

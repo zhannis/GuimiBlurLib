@@ -1,0 +1,120 @@
+import groovy.json.JsonSlurper
+import java.security.MessageDigest
+import java.util.jar.JarInputStream
+import java.util.zip.ZipFile
+
+plugins {
+    id 'base'
+}
+
+def repositoryOwner = findProperty('repositoryOwner').toString()
+def repositoryName = findProperty('repositoryName').toString()
+def ownerGroup = System.getenv('GROUP') ?: "com.github.${repositoryOwner}"
+def repositoryArtifact = System.getenv('ARTIFACT') ?: repositoryName
+def releaseGroup = findProperty('publishGroup') ?: "${ownerGroup}.${repositoryArtifact}"
+def releaseVersion = findProperty('publishVersion') ?: System.getenv('VERSION') ?: findProperty('releaseVersion')
+if (!releaseVersion || releaseVersion == 'unspecified') {
+    throw new GradleException('Set releaseVersion, -PpublishVersion, or JitPack VERSION before publishing.')
+}
+
+allprojects {
+    group = releaseGroup
+    version = releaseVersion
+}
+
+ext.releaseRepositoryUrl = "https://github.com/${repositoryOwner}/${repositoryName}"
+
+def sha256 = { File input ->
+    def digest = MessageDigest.getInstance('SHA-256')
+    input.withInputStream { stream ->
+        byte[] buffer = new byte[8192]
+        int count
+        while ((count = stream.read(buffer)) != -1) digest.update(buffer, 0, count)
+    }
+    digest.digest().encodeHex().toString()
+}
+
+tasks.register('verifyReleaseAars') {
+    group = 'verification'
+    description = 'Checks the AAR pair, hashes, public entry points, and obfuscated implementation.'
+    inputs.file('artifacts.json')
+    inputs.files(fileTree('aars') { include '*.aar' })
+    doLast {
+        def manifest = new JsonSlurper().parse(file('artifacts.json'))
+        def expected = [
+            'guimi-blur-lib': [file: 'aars/GuimiBlurLib-release.aar', marker: 'o/o/o/',
+                api: 'com/ccos/guimiblur/GuimiRegionBlurView.class'],
+            'guimi-blur-ext-lib': [file: 'aars/GuimiBlurExtLib-release.aar', marker: 'o/o/e/',
+                api: 'com/ccos/guimiblur/ext/GuimiIceGlassEffect.class'],
+        ]
+        if (manifest.formatVersion != 1 || manifest.artifacts*.id.sort() != expected.keySet().sort()) {
+            throw new GradleException('artifacts.json must describe exactly the base and extension AARs.')
+        }
+        manifest.artifacts.each { entry ->
+            def contract = expected[entry.id]
+            if (entry.file != contract.file) throw new GradleException("Unexpected AAR path: ${entry.file}")
+            def aar = file(entry.file)
+            if (!aar.isFile()) throw new GradleException("Missing release AAR: ${entry.file}")
+            if (sha256(aar) != entry.sha256) {
+                throw new GradleException("SHA-256 mismatch: ${entry.file}. Import the AAR pair with scripts/Update-Aars.ps1.")
+            }
+            new ZipFile(aar).withCloseable { zip ->
+                if (!zip.getEntry('AndroidManifest.xml') || !zip.getEntry('classes.jar')) {
+                    throw new GradleException("Not an Android library AAR: ${entry.file}")
+                }
+                def leakedEntry = zip.entries().find {
+                    it.name ==~ /(?i).*(?:\.java|\.kt|(?:^|\/)mapping\.txt|-sources\.jar)$/
+                }
+                if (leakedEntry) throw new GradleException("Private source/mapping entry in AAR: ${leakedEntry.name}")
+                def classes = []
+                new JarInputStream(zip.getInputStream(zip.getEntry('classes.jar'))).withCloseable { jar ->
+                    def item
+                    while ((item = jar.nextJarEntry) != null) classes.add(item.name)
+                }
+                if (!classes.contains(contract.api) || !classes.any { it.startsWith(contract.marker) }) {
+                    throw new GradleException("Expected public API or obfuscated implementation missing: ${entry.file}")
+                }
+                if (entry.id == 'guimi-blur-ext-lib' &&
+                    !zip.getEntry('assets/guimiblur/THIRD_PARTY_NOTICES.txt')) {
+                    throw new GradleException('The extension AAR must retain its third-party license notice.')
+                }
+            }
+            logger.lifecycle("Verified ${entry.id}: ${entry.sha256}")
+        }
+    }
+}
+
+tasks.register('verifyPublications') {
+    group = 'verification'
+    description = 'Publishes only to build/verification-repository and checks both Maven POMs and AARs.'
+    dependsOn ':guimi-blur-lib:publishReleasePublicationToVerificationRepository',
+        ':guimi-blur-ext-lib:publishReleasePublicationToVerificationRepository'
+    doLast {
+        subprojects.each { module ->
+            def coordinatePath = "${module.group.toString().replace('.', '/')}/${module.name}/${module.version}"
+            def directory = file("${buildDir}/verification-repository/${coordinatePath}")
+            def prefix = "${module.name}-${module.version}"
+            def pom = new XmlSlurper().parse(new File(directory, "${prefix}.pom"))
+            if (pom.groupId.text() != module.group.toString() || pom.artifactId.text() != module.name ||
+                pom.version.text() != module.version.toString() || pom.packaging.text() != 'aar') {
+                throw new GradleException("Incorrect Maven coordinates or packaging for ${module.name}")
+            }
+            def dependencies = pom.dependencies.dependency.collect {
+                [groupId: it.groupId.text(), artifactId: it.artifactId.text(),
+                    version: it.version.text(), scope: it.scope.text()]
+            }
+            if (dependencies != module.pomDependencies) {
+                throw new GradleException("Incorrect transitive dependencies for ${module.name}: ${dependencies}")
+            }
+            def publishedAar = new File(directory, "${prefix}.aar")
+            if (sha256(publishedAar) != sha256(module.releaseAar)) {
+                throw new GradleException("Published AAR differs from the input: ${module.name}")
+            }
+            logger.lifecycle("Verified publication ${module.group}:${module.name}:${module.version}")
+        }
+    }
+}
+
+tasks.named('check') {
+    dependsOn 'verifyPublications'
+}
