@@ -2,7 +2,7 @@
 
 ## 仓库边界
 
-私有仓库负责编译和混淆。这里负责将已有 AAR 发布为 Maven 依赖，不包含 Android 插件、实现源码或私有仓库凭据。远程地址是 `https://github.com/yuxiaoye1223/GuimiBlurLib`。
+私有仓库负责编译和混淆。这里负责将已有 AAR 发布为 Maven 依赖，不包含 Android 插件、实现源码或私有仓库凭据。远程地址是 `https://github.com/zhannis/GuimiBlurLib`。
 
 ```text
 GitGuimiBlurLib/
@@ -62,7 +62,7 @@ git push origin 1.0.2
 
 示例沿用当前本地 `main` 分支；远程分支不同需相应调整。不要移动已发布的 Tag，每次替换 AAR 建议发布新版本。
 
-6. 在 [JitPack](https://jitpack.io/#com.github.yuxiaoye1223/GuimiBlurLib) 查找此公有仓库，选择 Tag 并点击 Get it。构建成功后检查两个模块，而不是仅看仓库聚合依赖。
+6. 在 [JitPack](https://jitpack.io/#com.github.zhannis/GuimiBlurLib) 查找此公有仓库，选择 Tag 并点击 Get it。构建成功后检查两个模块，而不是仅看仓库聚合依赖。
 
 JitPack 通过 `jitpack.yml` 选择 JDK 17，并运行：
 
@@ -70,7 +70,7 @@ JitPack 通过 `jitpack.yml` 选择 JDK 17，并运行：
 bash ./gradlew --no-daemon verifyPublications publishToMavenLocal
 ```
 
-版本优先使用 JitPack 的 `VERSION` 环境变量，因此发布版本与请求的 Tag/提交一致。模块 group 使用 JitPack 的 `GROUP` 和 `ARTIFACT` 拼接，未提供时使用 `com.github.yuxiaoye1223.GuimiBlurLib`。没有编译、访问私有源码或远程 Maven 上传步骤，JitPack 会收集本地 Maven 仓库里的 AAR/POM。
+版本优先使用 JitPack 的 `VERSION` 环境变量，因此发布版本与请求的 Tag/提交一致。模块 group 使用 JitPack 的 `GROUP` 和 `ARTIFACT` 拼接，未提供时使用 `com.github.zhannis.GuimiBlurLib`。没有编译、访问私有源码或远程 Maven 上传步骤，JitPack 会收集本地 Maven 仓库里的 AAR/POM。
 
 如果日志出现 `JAVA_HOME is set to an invalid directory: /usr/lib/jvm/jdk-11`，说明 Gradle 尚未启动，需确认构建的提交包含选择 `openjdk17` 的 `jitpack.yml`。只推送分支不会改变旧 Tag 指向的提交；可创建新版本 Tag 后构建，并将接入依赖的版本改为该 Tag 的完整名称（`1.0.1` 与 `1.0.2` 是不同版本）。
 
@@ -81,15 +81,15 @@ bash ./gradlew --no-daemon verifyPublications publishToMavenLocal
 .\gradlew.bat verifyPublications -PpublishVersion=v1.0.2 --offline
 ```
 
-产物在 `build/verification-repository/com/github/yuxiaoye1223/GuimiBlurLib/<module>/<version>/`，不进入 Git。检查 POM 的 `<packaging>aar</packaging>`、依赖版本和发布后 AAR 的 SHA-256。
+产物在 `build/verification-repository/com/github/zhannis/GuimiBlurLib/<module>/<version>/`，不进入 Git。检查 POM 的 `<packaging>aar</packaging>`、依赖版本和发布后 AAR 的 SHA-256。
 
 若需要检查与 JitPack 一样的收集方式，可运行 `publishToMavenLocal`；它会写入用户的 Maven 本地仓库，但不会上传到远程。正常本地验证使用 `verifyPublications` 即可。
 
 ## App 坐标
 
 ```groovy
-implementation 'com.github.yuxiaoye1223.GuimiBlurLib:guimi-blur-lib:1.0.2'
-implementation 'com.github.yuxiaoye1223.GuimiBlurLib:guimi-blur-ext-lib:1.0.2'
+implementation 'com.github.zhannis.GuimiBlurLib:guimi-blur-lib:1.0.2'
+implementation 'com.github.zhannis.GuimiBlurLib:guimi-blur-ext-lib:1.0.2'
 ```
 
 CPU-only App 仅保留第一项；GPU App 可以只声明第二项，它会传递引入基础库。不要引用旧私有仓库坐标，也不要用聚合坐标给 CPU-only App 引入整个仓库。

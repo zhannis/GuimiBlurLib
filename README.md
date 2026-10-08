@@ -26,18 +26,18 @@ repositories {
 只需要 CPU 模糊：
 
 ```groovy
-implementation 'com.github.yuxiaoye1223.GuimiBlurLib:guimi-blur-lib:1.0.2'
+implementation 'com.github.zhannis.GuimiBlurLib:guimi-blur-lib:1.0.2'
 ```
 
 需要 GPU、玻璃或自定义 AGSL：
 
 ```groovy
-implementation 'com.github.yuxiaoye1223.GuimiBlurLib:guimi-blur-ext-lib:1.0.2'
+implementation 'com.github.zhannis.GuimiBlurLib:guimi-blur-ext-lib:1.0.2'
 ```
 
 App 的最低系统版本也需为 API 34。可以显式声明两个依赖，但它们的版本必须一致。依赖信息包含 AndroidX 和 Kotlin，不需要手动复制 AAR 或关闭传递依赖；不建议加 `@aar`，以免跳过依赖元数据。
 
-上述版本需要先推送本仓库的对应 Tag，并在 [JitPack](https://jitpack.io/#com.github.yuxiaoye1223/GuimiBlurLib/1.0.2) 构建成功才可下载。初始化本地发布工程不代表远程已发布。
+上述版本需要先推送本仓库的对应 Tag，并在 [JitPack](https://jitpack.io/#com.github.zhannis/GuimiBlurLib/1.0.2) 构建成功才可下载。初始化本地发布工程不代表远程已发布。
 
 ## CPU 模糊
 
