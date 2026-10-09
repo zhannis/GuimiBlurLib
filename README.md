@@ -2,6 +2,8 @@
 
 ## 1.0.6
 
+基础 AAR 内置 RenderScript Toolkit 包装类及 arm64-v8a、armeabi-v7a 的 `librenderscript-toolkit.so`。通过 `GuimiCpuBlurEffect(useRenderScriptToolkit = true)` 启用 JNI 模糊，默认 false 使用盒式模糊。Maven 依赖自动合并 SO；宿主需删除原有同名 Toolkit 类和 SO，避免重复打包。其他 ABI 或 JNI 加载失败时打印 warn 并回退盒式模糊。
+
 CPU 模糊 `radius` 自动限制到 `0..24`，越界不抛异常；CPU 半径与 GPU `sigma` / `blurSigma` 越界时打印 `GuimiBlur` warn，包含原始值与最终采用值。
 
 三个内置 GPU 效果的 `sigma` / `blurSigma` 自动限制到 `0..60`，越界不抛异常；负无穷取 0，正无穷取 60，`NaN` 取 0。
@@ -90,7 +92,18 @@ GuimiBlurConfig.setCpuEffect(GuimiCpuBlurEffect(
 ))
 ```
 
-这里的 `root` 和 `itemContainer` 是 `FrameLayout`。`radius` 为 `0..24`，作用于降采样背景；`0` 不模糊。`maskColor` 为 ARGB 叠色。`roundCorner` 单位是像素；椭圆可传 `asOval = true`。不依赖扩展库即可使用 CPU 模式。
+这里的 `root` 和 `itemContainer` 是 `FrameLayout`。`radius` 为 `0..24`，直接作用于参与模糊的位图，不按取样比例换算；`0` 不模糊。普通 CPU 模式最长边不超过 1920 时保留原分辨率，更大的背景降采样；不同取样分辨率下相同半径的显示效果可能不同。`maskColor` 为 ARGB 叠色。`roundCorner` 单位是像素；椭圆可传 `asOval = true`。不依赖扩展库即可使用 CPU 模式。
+
+对比 RenderScript 的原始 CPU 效果：
+
+```kotlin
+GuimiBlurConfig.setCpuEffect(GuimiCpuBlurEffect(
+    radius = 2,
+    useRenderScriptToolkit = true,
+))
+```
+
+`useRenderScriptToolkit` 同时启用 4/8/16/32 倍取样和 Toolkit JNI 模糊；1080p 使用 240×135 快照，再过滤放大。关闭时使用普通 CPU 取样和 Box Blur。Toolkit 加载失败仍会打印 warn 并回退 Box Blur，对比时需检查设备日志。
 
 ## GPU 效果
 
